@@ -6,8 +6,6 @@ num_port=1820
 total_ports_list="1 2 4 8 16 24"
 total_clients=4
 
-
-total_sockets="1 2 4 8 16 24 32 48 64"
 for total_ports in $total_ports_list
 do
 
