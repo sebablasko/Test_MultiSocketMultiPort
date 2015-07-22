@@ -1,10 +1,11 @@
 #!/bin/bash
 
 MAX_PACKS=1000000
-repetitions=2
+repetitions=5
 num_port=1820
-total_ports_list="1 2 4 8 16 24"
+total_ports_list="5"
 total_clients=4
+client_port_target=13131
 
 for total_ports in $total_ports_list
 do
@@ -23,7 +24,8 @@ do
 		{
 			for ((k=0 ; $k<$total_ports ; k++))
 			{
-				./clientTesis --packets $(($MAX_PACKS*10)) --ip 127.0.0.1 --port $(($num_port+$k)) > /dev/null &
+				#./clientTesis --packets $(($MAX_PACKS*10)) --ip 127.0.0.1 --port $(($num_port+$k)) > /dev/null &
+				./clientTesis --packets $(($MAX_PACKS*10)) --ip 127.0.0.1 --port $client_port_target > /dev/null &
 			}
 		}
 
