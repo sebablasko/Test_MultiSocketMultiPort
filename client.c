@@ -32,7 +32,7 @@ void print_config(){
     printf("\tPaquetes a enviar:\t%d\n", MAX_PACKS);
     printf("\tIP de destino:\t%s\n", IP_DEST);
     printf("\tPuerto a enviar:\t%d\n", DESTINATION_PORT);
-    reuseport ? printf("\tModo Intensivo\n") : ;
+    intensiveMode ? printf("\tModo Intensivo\n") : ;
 }
 
 void parseArgs(int argc, char **argv){
