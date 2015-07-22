@@ -3,7 +3,7 @@
 MAX_PACKS=1000000
 repetitions=5
 num_port=1820
-total_ports_list="1 2 4"
+total_ports_list="1 2 4 8 16"
 total_clients=4
 client_port_target=13131
 
