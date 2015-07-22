@@ -17,13 +17,14 @@ struct timeval dateInicio, dateFin;
 char buf[BUF_SIZE];
 char* IP_DEST = "";
 int mostrarInfo = 0;
+int intensiveMode = 0;
 int MAX_PACKS = 0;
 int DESTINATION_PORT = FIRST_PORT;
 double segundos;
 
 
 void print_usage(){
-    printf("Uso: ./client [verbose] --packets <num> --ip <ip-address> --port <num>\n");
+    printf("Uso: ./client [verbose] [intensive] --packets <num> --ip <ip-address> --port <num>\n");
 }
 
 void print_config(){
@@ -31,6 +32,7 @@ void print_config(){
     printf("\tPaquetes a enviar:\t%d\n", MAX_PACKS);
     printf("\tIP de destino:\t%s\n", IP_DEST);
     printf("\tPuerto a enviar:\t%d\n", DESTINATION_PORT);
+    reuseport ? printf("\tModo Intensivo\n") : ;
 }
 
 void parseArgs(int argc, char **argv){
@@ -46,10 +48,11 @@ void parseArgs(int argc, char **argv){
 			{"ip", required_argument, 0, 'i'},
 			{"port", required_argument, 0, 'p'},
 			{"verbose", no_argument, 0, 'v'},
+			{"intensive", no_argument, 0, 'f'},
 			{0, 0, 0, 0}
 		};
 
-         c = getopt_long (argc, argv, "vd:i:p:",
+         c = getopt_long (argc, argv, "vfd:i:p:",
          long_options, &option_index);
  
          if (c == -1)
@@ -60,6 +63,11 @@ void parseArgs(int argc, char **argv){
 			case 'v':
 				printf ("Modo Verboso\n");
 				mostrarInfo = 1;
+				break;
+
+			case 'f':
+				printf ("Modo Intensivo\n");
+				intensiveMode = 1;
 				break;
 
 			case 'd':
@@ -115,12 +123,16 @@ int main(int argc, char **argv) {
 
 	// Paso 4.1.- Escribir en el socket
 	for(i = 0; i < MAX_PACKS; i++){
-		if(write(socket_fd, buf, BUF_SIZE) != BUF_SIZE) {
+		if(intensiveMode){
+			write(socket_fd, buf, BUF_SIZE);
+		}else{
+			if(write(socket_fd, buf, BUF_SIZE) != BUF_SIZE) {
 			gettimeofday(&dateFin, NULL);
 			segundos = (dateFin.tv_sec+dateFin.tv_usec/1000000.)-(dateInicio.tv_sec*1.0+dateInicio.tv_usec/1000000.);
 			//fprintf(stderr, "Falla el write al servidor, envio %d paquetes\n", i);
 			//fprintf(stderr, "total time = %g\n", segundos);
 			break;
+		}
 		}
 	}
 
