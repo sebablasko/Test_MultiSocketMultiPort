@@ -25,11 +25,12 @@ do
 			for ((k=0 ; $k<$total_ports ; k++))
 			{
 				#./clientTesis --packets $(($MAX_PACKS*10)) --ip 127.0.0.1 --port $(($num_port+$k)) > /dev/null &
-				./clientTesis --packets $(($MAX_PACKS*10)) --ip 127.0.0.1 --port $client_port_target > /dev/null &
+				./clientTesis --intensive --packets $(($MAX_PACKS*10)) --ip 127.0.0.1 --port $client_port_target > /dev/null &
 			}
 		}
 
-		wait $(pgrep 'serverTesis')
+        wait $(pgrep 'serverTesis')
+        kill $(pgrep 'clientTesis')
 
 		echo ""
 
