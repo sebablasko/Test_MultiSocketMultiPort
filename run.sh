@@ -1,15 +1,16 @@
 #!/bin/bash
 
 MAX_PACKS=1000000
-repetitions=20
+repetitions=4
 num_port=1820
-total_ports_list="1 2 4 8 16 24 32"
+total_ports_list="1 2 4"
 total_clients=4
 client_port_target=13131
 
 
 for total_ports in $total_ports_list
 do
+	echo "Evaluando $total_ports..."
 	ports="1820"
 	for ((k=1 ; $k<$total_ports ; k++))
 	{
@@ -37,12 +38,13 @@ do
 			for ((k=0 ; $k<$total_ports ; k++))
 			{
 				#./clientTesis --intensive --packets $(($MAX_PACKS*10)) --ip 127.0.0.1 --port $(($num_port+$k)) > /dev/null &
-				./clientTesis --intensive --packets $(($MAX_PACKS*10)) --ip 127.0.0.1 --port $client_port_target > /dev/null &
+				# Le saque el modo intensivo
+				./clientTesis --packets $(($MAX_PACKS*10)) --ip 127.0.0.1 --port $client_port_target > /dev/null &
 			}
 		}
 
         wait $(pgrep 'serverTesis')
-        kill $(pgrep 'clientTesis')
+        #kill $(pgrep 'clientTesis')
         cat aux >> $salida
         rm aux
         echo "" >> $salida
