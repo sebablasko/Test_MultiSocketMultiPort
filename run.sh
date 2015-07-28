@@ -55,6 +55,6 @@ done
 echo "Compilando resultados"
 
 cat modulo_Times_* > results_modulo.csv
-sed 's/;//g' results.csv | sed 's/,//g' | sed 's/\./,/g' > results_modulo_FIX.csv
+sed 's/;//g' results_modulo.csv | sed 's/,//g' | sed 's/\./,/g' > results_modulo_FIX.csv
 
 echo "done"
