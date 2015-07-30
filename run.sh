@@ -1,7 +1,7 @@
 #!/bin/bash
 
 MAX_PACKS=1000000
-repetitions=1
+repetitions=50
 num_port=1820
 total_ports_list="1 2 4 8 16 24 36 48 64 128"
 total_clients=4
