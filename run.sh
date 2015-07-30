@@ -1,9 +1,9 @@
 #!/bin/bash
 
 MAX_PACKS=1000000
-repetitions=30
+repetitions=3
 num_port=1820
-total_ports_list="1 2 4 8 16 24 36 48 60"
+total_ports_list="1 2 4"
 total_clients=4
 client_port_target=13131
 
@@ -34,11 +34,7 @@ do
 
 		for ((j=1 ; $j<=$total_clients ; j++))
 		{
-			#for ((k=0 ; $k<$total_ports ; k++))
-			##{
-				#./clientTesis --intensive --packets $(($MAX_PACKS*10)) --ip 127.0.0.1 --port $(($num_port+$k)) > /dev/null &
-				./clientTesis --intensive --packets $(($MAX_PACKS*10)) --ip 127.0.0.1 --port $client_port_target > /dev/null &
-			#}
+			./clientTesis --intensive --packets $(($MAX_PACKS*10)) --ip 127.0.0.1 --port $client_port_target > /dev/null &
 		}
 
         wait $(pgrep 'serverTesis')
@@ -86,11 +82,7 @@ do
 
 		for ((j=1 ; $j<=$total_clients ; j++))
 		{
-			#for ((k=0 ; $k<$total_ports ; k++))
-			##{
-				#./clientTesis --intensive --packets $(($MAX_PACKS*10)) --ip 127.0.0.1 --port $(($num_port+$k)) > /dev/null &
-				./clientTesis --intensive --packets $(($MAX_PACKS*10)) --ip 127.0.0.1 --port $client_port_target > /dev/null &
-			#}
+			./clientTesis --intensive --packets $(($MAX_PACKS*10)) --ip 127.0.0.1 --port $client_port_target > /dev/null &
 		}
 
         wait $(pgrep 'serverTesis')
@@ -126,7 +118,7 @@ do
 	{
 		echo "Repeticion $i"
 
-		# Lanzar $total_ports instancias de ServerTesis corriendo en puertos distintos partiendo de $num_port
+		# Lanzar $total_ports instancias de ServerTesis con REUSEPORT corriendo en el mismo puerto con 1 thread por instancia
 		for ((k=0 ; $k<$total_ports ; k++))
 		{
 			./serverTesis --packets $(($MAX_PACKS/$total_ports)) --threads 1 --port $num_port --reuseport >> aux &
@@ -136,10 +128,7 @@ do
 
 		for ((j=1 ; $j<=$total_clients ; j++))
 		{
-			#for ((k=0 ; $k<$total_ports ; k++))
-			##{
-				./clientTesis --intensive --packets $(($MAX_PACKS*10)) --ip 127.0.0.1 --port $num_port > /dev/null &
-			#}
+			./clientTesis --intensive --packets $(($MAX_PACKS*10)) --ip 127.0.0.1 --port $num_port > /dev/null &
 		}
 
         wait $(pgrep 'serverTesis')
@@ -155,5 +144,46 @@ echo "Compilando resultados"
 
 cat reuseport_Times_* > results_reuseport.csv
 sed 's/;//g' results_reuseport.csv | sed 's/,//g' | sed 's/\./,/g' > results_reuseport_FIX.csv
+echo "done"
+
+
+
+#USANDO THREADS
+for total_ports in $total_ports_list
+do
+	echo "Evaluando $total_ports Usando threads..."
+
+	# Archivo para guardar datos
+	if (($total_ports >= 0 & $total_ports < 10)); then salida="threads_Times_00$total_ports""_sockets.csv"; fi
+	if (($total_ports >= 10 & $total_ports < 100)); then salida="threads_Times_0$total_ports""_sockets.csv"; fi
+	if (($total_ports >= 100)); then salida="threads_Times_$total_ports""_sockets.csv"; fi
+
+	for ((i=1 ; $i<=$repetitions ; i++))
+	{
+		echo "Repeticion $i"
+
+		# Lanzar una instancia de ServerTesis corriendo en un puerto usando $total_ports threads de consumo
+		./serverTesis --packets $MAX_PACKS --threads $total_ports --port $num_port --reuseport >> aux &
+
+		sleep 1
+
+		for ((j=1 ; $j<=$total_clients ; j++))
+		{
+			./clientTesis --intensive --packets $(($MAX_PACKS*10)) --ip 127.0.0.1 --port $num_port > /dev/null &
+		}
+
+        wait $(pgrep 'serverTesis')
+        kill $(pgrep 'clientTesis')
+        cat aux >> $salida
+        rm aux
+        echo "" >> $salida
+	}
+
+done
+
+echo "Compilando resultados"
+
+cat threads_Times_* > results_threads.csv
+sed 's/;//g' results_threads.csv | sed 's/,//g' | sed 's/\./,/g' > results_threads_FIX.csv
 
 echo "done"
