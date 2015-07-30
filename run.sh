@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MAX_PACKS=1000
+MAX_PACKS=1000000
 repetitions=1
 num_port=1820
 total_ports_list="1 2 4 8 16 24 36 48 64 128"
